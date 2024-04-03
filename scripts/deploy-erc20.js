@@ -9,18 +9,25 @@ const main = async () => {
   const contractFactoryName = "ERC20Contract";
   const now = moment().format("YYYY-M-D H:m:s");
 
+  console.log("=======컨트랙트 생성자를 생성합니다=======");
   const erc20Contract = await hre.ethers.deployContract(contractFactoryName, [
     initialSupply,
   ]);
+  console.log("=======컨트랙트 배포를 기다립니다.=======");
   await erc20Contract.waitForDeployment();
 
   const address = await erc20Contract.getAddress();
+  console.log("=======컨트랙트 ABI를 추출합니다.=======");
+  const abi = (
+    await hre.ethers.getContractFactory(contractFactoryName)
+  ).interface.formatJson();
 
-  await conn.execute("INSERT INTO contract_info VALUES (?,?,?,?,?,?)", [
+  await conn.execute("INSERT INTO contract_info VALUES (?,?,?,?,?,?,?)", [
     null,
     hre.config.defaultNetwork,
     address,
     contractFactoryName,
+    abi,
     now,
     now,
   ]);
